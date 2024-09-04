@@ -65,7 +65,7 @@ impl Users {
     Ok(())
   }
 
-  fn trim(&self, row: &Row, field: &str) -> String {
+  fn trim_field(&self, row: &Row, field: &str) -> String {
     row.get::<_, String>(field).trim().to_string()
   }
 
@@ -88,7 +88,7 @@ impl Users {
           Type::INT4 | Type::INT8 => row.get::<_, i32>(col_name).to_string(),
           Type::FLOAT4 | Type::FLOAT8 => row.get::<_, f64>(col_name).to_string(),
           Type::BOOL => row.get::<_, bool>(col_name).to_string(),
-          Type::TEXT | Type::VARCHAR | Type::BPCHAR => self.trim(&row, col_name),
+          Type::TEXT | Type::VARCHAR | Type::BPCHAR => self.trim_field(&row, col_name),
           _ => {
             let value: Option<String> = row.get(col_name);
             value.unwrap_or_else(|| "NULL".to_string())

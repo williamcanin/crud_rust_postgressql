@@ -21,15 +21,15 @@ impl Database {
     drop(self.client);
   }
 
-  pub async fn rollback(
+  pub async fn delete(
     &mut self,
     schema: &str,
-    tbl: &str,
+    tbl_name: &str,
     id: i32,
-  ) -> Result<u64, postgres::Error> {
-    let query = format!("DELETE FROM {schema}.{tbl} WHERE id = $1;");
+  ) -> Result<bool, postgres::Error> {
+    let query = format!("DELETE FROM {schema}.{tbl_name} WHERE id = $1;");
     match self.client.query(&query, &[&id]).await {
-      Ok(_) => Ok(1),
+      Ok(_) => Ok(true),
       Err(e) => Err(e),
     }
   }
