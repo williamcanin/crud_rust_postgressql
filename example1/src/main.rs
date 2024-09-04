@@ -2,7 +2,7 @@ mod database;
 mod options;
 mod tests;
 mod users;
-use crate::users::controller::Users;
+use crate::database::controller::Database;
 use options::connection_data;
 use users::model::UserFields;
 
@@ -10,7 +10,7 @@ use users::model::UserFields;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let data = connection_data();
 
-  match Users::new(&data).await {
+  match Database::connect(&data).await {
     Ok(mut db) => {
       let tbl_name = "users";
       let mut get_id: i32 = 0;
@@ -54,8 +54,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Err(e) => eprintln!("Error reading user: {}", e),
       };
-
-      db.close_connection().await;
     }
     Err(e) => eprintln!("Error connection database: {}", e),
   };
