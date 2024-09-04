@@ -18,7 +18,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(mut db) => {
       let mut id: i32 = 0;
 
-      let tbl_name = "users";
+      let tbl_name_users = "users";
+      let tbl_name_products = "products";
 
       let new_user = UserFields {
         name: String::from("John"),
@@ -27,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         driver_license: false,
       };
 
-      match db.insert(&new_user, &data.schema, tbl_name).await {
+      match db.insert(&new_user, &data.schema, tbl_name_users).await {
         Ok(id_recovered) => {
           println!("User inserted with ID: {}", id);
           id = id_recovered;
@@ -35,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(id, &data.schema, tbl_name).await {
+      match db.read(id, &data.schema, tbl_name_users).await {
         Ok(data) => {
           println!("User added read: {:?}", data);
         }
@@ -49,12 +50,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         driver_license: true,
       };
 
-      match db.update(id, &updated_user, &data.schema, tbl_name).await {
+      match db
+        .update(id, &updated_user, &data.schema, tbl_name_users)
+        .await
+      {
         Ok(_) => println!("User updated ID: {id}"),
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(id, &data.schema, tbl_name).await {
+      match db.read(id, &data.schema, tbl_name_users).await {
         Ok(data) => {
           println!("Updated user read: {:?}", data);
         }
@@ -69,7 +73,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         expiration_date: set_date(2024, 05, 21),
       };
 
-      match db.insert(&new_product, &data.schema, "products").await {
+      match db
+        .insert(&new_product, &data.schema, tbl_name_products)
+        .await
+      {
         Ok(id_recovered) => {
           println!("Product inserted with ID: {}", id);
           id = id_recovered;
@@ -77,7 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(id, &data.schema, "products").await {
+      match db.read(id, &data.schema, tbl_name_products).await {
         Ok(data) => {
           println!("Updated user read: {:?}", data);
         }
