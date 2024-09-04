@@ -1,5 +1,6 @@
 use super::traits::DatabaseFields;
 use crate::database::model::ConnectionData;
+use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
 use std::collections::HashMap;
 use tokio_postgres::{self as postgres, types::Type, Row};
 
@@ -72,6 +73,10 @@ impl Database {
     row.get::<_, String>(field).trim().to_string()
   }
 
+  fn ignored_fields(&self) -> Vec<&'static str> {
+    vec!["id"]
+  }
+
   pub async fn read(
     &mut self,
     id: i32,
@@ -85,12 +90,17 @@ impl Database {
 
     for col in row.columns() {
       let col_name = col.name();
-      if col_name != "id" {
+      if !self.ignored_fields().contains(&col_name) {
         let value: String = match *col.type_() {
           Type::INT4 | Type::INT8 => row.get::<_, i32>(col_name).to_string(),
           Type::FLOAT4 | Type::FLOAT8 => row.get::<_, f64>(col_name).to_string(),
           Type::BOOL => row.get::<_, bool>(col_name).to_string(),
           Type::TEXT | Type::VARCHAR | Type::BPCHAR => self.trim_field(&row, col_name),
+          Type::TIMESTAMP => {
+            let timestamp: NaiveDateTime = row.get(col_name);
+            let datetime: DateTime<Utc> = Utc.from_utc_datetime(&timestamp);
+            datetime.to_string()
+          }
           _ => {
             let value: Option<String> = row.get(col_name);
             value.unwrap_or_else(|| "NULL".to_string())
