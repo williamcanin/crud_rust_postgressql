@@ -17,8 +17,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let new_user = UserFields {
         name: String::from("John"),
         email: String::from("john@example.com"),
-        age: 35,
+        age: 17,
+        driver_license: false,
       };
+
       match db.insert(&new_user, &data.schema, tbl_name).await {
         Ok(id) => {
           println!("User inserted with ID: {}", id);
@@ -38,6 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         name: String::from("William"),
         email: String::from("william@example.com"),
         age: 36,
+        driver_license: true,
       };
 
       match db
