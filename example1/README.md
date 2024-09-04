@@ -22,11 +22,11 @@ CREATE TABLE IF NOT EXISTS mydb.users
 2 - Create a `.env` file in this directory with the following variables:
 
 ```
-DB_URL=
-SCHEMA=
+DB_URL=postgres://postgres:postgres@localhost:5432/postgres
+SCHEMA=mydb
 ```
 
-Example url: ```postgres://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>```
+Format: ```postgres://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>```
 
 ### Commands
 
