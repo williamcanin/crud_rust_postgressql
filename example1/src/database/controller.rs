@@ -1,6 +1,6 @@
 use super::traits::DatabaseFields;
 use crate::database::model::ConnectionData;
-use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
 use std::collections::HashMap;
 use tokio_postgres::{self as postgres, types::Type, Row};
 
@@ -100,6 +100,10 @@ impl Database {
             let timestamp: NaiveDateTime = row.get(col_name);
             let datetime: DateTime<Utc> = Utc.from_utc_datetime(&timestamp);
             datetime.to_string()
+          }
+          Type::DATE => {
+            let date: NaiveDate = row.get(col_name);
+            date.format("%Y-%m-%d").to_string()
           }
           _ => {
             let value: Option<String> = row.get(col_name);
