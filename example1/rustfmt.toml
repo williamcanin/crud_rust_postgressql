@@ -1,0 +1,28 @@
+# ==== Rust Code Formatter Configuration ====
+# Author: William C. Canin <https://williamcanin.github.io>
+
+## To use do: ##
+# 1 - Run the command to install nightly:
+#     >>> rustup install nightly
+# 2 - Check the code:
+#     >>> cargo +nightly fmt --check
+# 3 - Format the code:
+#     >>> cargo +nightly fmt
+
+edition = "2021"
+struct_lit_single_line = true
+tab_spaces = 2
+match_arm_blocks = false
+format_strings = false
+max_width = 100
+indent_style = "Block"
+imports_indent  = "Block"
+imports_layout = "Mixed"
+hard_tabs = false
+reorder_imports = true
+newline_style = "Auto"
+use_small_heuristics = "Default"
+comment_width = 100
+trailing_comma = "Vertical"
+where_single_line = true
+wrap_comments = true
