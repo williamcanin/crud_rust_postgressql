@@ -17,6 +17,18 @@ CREATE TABLE IF NOT EXISTS mydb.users
 	driver_license boolean,
 	PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS mydb.products
+(
+	id serial,
+	datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	name char(50) not null,
+	price double precision not null,
+	supplier char(50) not null,
+	code integer,
+	expiration_date date
+	PRIMARY KEY (id)
+);
 ```
 
 2 - Create a `.env` file in this directory with the following variables:
