@@ -1,10 +1,14 @@
 mod database;
 mod options;
+mod products;
 mod tests;
 mod users;
+mod utils;
 use crate::database::controller::Database;
 use options::connection_data;
+use products::model::ProductsFields;
 use users::model::UserFields;
+use utils::set_date;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -12,8 +16,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   match Database::connect(&data).await {
     Ok(mut db) => {
+      let mut id: i32 = 0;
+
       let tbl_name = "users";
-      let mut get_id: i32 = 0;
+
       let new_user = UserFields {
         name: String::from("John"),
         email: String::from("john@example.com"),
@@ -22,14 +28,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       };
 
       match db.insert(&new_user, &data.schema, tbl_name).await {
-        Ok(id) => {
+        Ok(id_recovered) => {
           println!("User inserted with ID: {}", id);
-          get_id = id;
+          id = id_recovered;
         }
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(get_id, &data.schema, tbl_name).await {
+      match db.read(id, &data.schema, tbl_name).await {
         Ok(data) => {
           println!("User added read: {:?}", data);
         }
@@ -43,15 +49,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         driver_license: true,
       };
 
-      match db
-        .update(get_id, &updated_user, &data.schema, tbl_name)
-        .await
-      {
-        Ok(_) => println!("User updated ID: {get_id}"),
+      match db.update(id, &updated_user, &data.schema, tbl_name).await {
+        Ok(_) => println!("User updated ID: {id}"),
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(get_id, &data.schema, tbl_name).await {
+      match db.read(id, &data.schema, tbl_name).await {
+        Ok(data) => {
+          println!("Updated user read: {:?}", data);
+        }
+        Err(e) => eprintln!("Error reading user: {}", e),
+      };
+
+      let new_product = ProductsFields {
+        name: String::from("iPhone 15"),
+        price: 1500.45,
+        supplier: String::from("Apple"),
+        code: 1457,
+        expiration_date: set_date(2024, 05, 21),
+      };
+
+      match db.insert(&new_product, &data.schema, "products").await {
+        Ok(id_recovered) => {
+          println!("Product inserted with ID: {}", id);
+          id = id_recovered;
+        }
+        Err(e) => eprintln!("Error inserting user: {}", e),
+      };
+
+      match db.read(id, &data.schema, "products").await {
         Ok(data) => {
           println!("Updated user read: {:?}", data);
         }
