@@ -9,7 +9,7 @@ DB_URL=
 SCHEMA=
 ```
 
-Example url: postgres://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>
+Example url: ```postgres://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>```
 
 ### Commands
 
