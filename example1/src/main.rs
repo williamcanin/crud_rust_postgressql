@@ -5,6 +5,7 @@ mod tests;
 mod users;
 mod utils;
 use crate::database::controller::Database;
+use database::controller::QueryResult;
 use options::connection_data;
 use products::model::ProductsFields;
 use users::model::UserFields;
@@ -30,13 +31,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
       match db.insert(&new_user, &data.schema, tbl_name_users).await {
         Ok(id_recovered) => {
-          println!("User inserted with ID: {}", id);
+          println!("User inserted with ID: {}", id_recovered);
           id = id_recovered;
         }
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(id, &data.schema, tbl_name_users).await {
+      match db.read(Some(id), &data.schema, tbl_name_users).await {
         Ok(data) => {
           println!("User added read: {:?}", data);
         }
@@ -58,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(id, &data.schema, tbl_name_users).await {
+      match db.read(Some(id), &data.schema, tbl_name_users).await {
         Ok(data) => {
           println!("Updated user read: {:?}", data);
         }
@@ -78,15 +79,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
       {
         Ok(id_recovered) => {
-          println!("Product inserted with ID: {}", id);
+          println!("Product inserted with ID: {}", id_recovered);
           id = id_recovered;
         }
         Err(e) => eprintln!("Error inserting user: {}", e),
       };
 
-      match db.read(id, &data.schema, tbl_name_products).await {
+      match db.read(Some(id), &data.schema, tbl_name_products).await {
         Ok(data) => {
           println!("Updated user read: {:?}", data);
+        }
+        Err(e) => eprintln!("Error reading user: {}", e),
+      };
+
+      match db.read(None, &data.schema, "products").await {
+        Ok(data) => {
+          println!("Updated user read: {:?}", data);
+        }
+        Err(e) => eprintln!("Error reading user: {}", e),
+      };
+
+      match db.read(None, &data.schema, "products").await {
+        Ok(QueryResult::Single(row)) => {
+          println!("Single record: {:?}", row);
+        }
+        Ok(QueryResult::Multiple(rows)) => {
+          println!("All records: {:?}", rows);
         }
         Err(e) => eprintln!("Error reading user: {}", e),
       };
