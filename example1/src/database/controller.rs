@@ -8,6 +8,13 @@ pub struct Database {
   pub client: postgres::Client,
 }
 
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum QueryResult {
+  Single(HashMap<String, String>),
+  Multiple(Vec<HashMap<String, String>>),
+}
+
 impl Database {
   pub async fn connect(data: &ConnectionData) -> Result<Self, postgres::Error> {
     let (client, connection) = postgres::connect(&data.db_url, postgres::NoTls).await?;
@@ -77,17 +84,8 @@ impl Database {
     vec!["id"]
   }
 
-  pub async fn read(
-    &mut self,
-    id: i32,
-    schema: &str,
-    tbl_name: &str,
-  ) -> Result<HashMap<String, String>, postgres::Error> {
-    let query = format!("SELECT * FROM {}.{} WHERE id = $1", schema, tbl_name);
-    let row = self.client.query_one(&query, &[&id]).await?;
-
+  fn runner_row(&self, row: Row) -> HashMap<String, String> {
     let mut result = HashMap::new();
-
     for col in row.columns() {
       let col_name = col.name();
       if !self.ignored_fields().contains(&col_name) {
@@ -113,8 +111,30 @@ impl Database {
         result.insert(col_name.to_string(), value);
       }
     }
+    result
+  }
 
-    Ok(result)
+  pub async fn read(
+    &mut self,
+    id: Option<i32>,
+    schema: &str,
+    tbl_name: &str,
+  ) -> Result<QueryResult, postgres::Error> {
+    match id {
+      Some(value) => {
+        let query = format!("SELECT * FROM {}.{} WHERE id = $1", schema, tbl_name);
+        let row = self.client.query_one(&query, &[&value]).await?;
+        Ok(QueryResult::Single(self.runner_row(row)))
+      }
+      None => {
+        let query = format!("SELECT * FROM {}.{}", schema, tbl_name);
+        let rows = self.client.query(&query, &[]).await?;
+        let result: Vec<HashMap<String, String>> =
+          rows.into_iter().map(|row| self.runner_row(row)).collect();
+
+        Ok(QueryResult::Multiple(result))
+      }
+    }
   }
 
   pub async fn delete(
